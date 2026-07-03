@@ -1079,51 +1079,51 @@
             <div class="board-avatar">JR</div>
             <div class="board-info">
               <strong>Jeeta Gandhi</strong>
-              <span>Chairperson<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="97e7e5f2e4fef3f2f9e3d7f0f6e1f2fbfbf8f0fbf2f9b9f8e5f0">[email&#160;protected]</a></span>
+              <span>Chairperson<a href="mailto:gavelloglen@gmail.com">gavelloglen@gmail.com</a></span>
             </div>
           </div>
           <div class="board-member">
             <div class="board-avatar">ML</div>
             <div class="board-info">
               <strong>Will Corvino</strong>
-              <span>Comm Coordinator<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f98f89b99e988f9c9595969e959c97d7968b9e">[email&#160;protected]</a></span>
+              <span>Comm Coordinator<a href="mailto:gavelloglen@gmail.com">gavelloglen@gmail.com</a></span>
             </div>
           </div>
           <div class="board-member">
-            <div class="board-avatar">DK</div>
+            <div class="board-avatar">TW</div>
             <div class="board-info">
-              <strong>Tony Thiebaud</strong>
-              <span>Treasurer · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a3d7d1c6c2d0d6d1c6d1e3c4c2d5c6cfcfccc4cfc6cd8dccd1c4">[email&#160;protected]</a></span>
+              <strong>Theresa Whitney</strong>
+              <span>Treasurer · <a href="mailto:gavelloglen@gmail.com">gavelloglen@gmail.com</a></span>
             </div>
           </div>
           <div class="board-member">
             <div class="board-avatar">SP</div>
             <div class="board-info">
               <strong>Theresa Whitney</strong>
-              <span>Secretary · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b8cbdddbcaddccd9cac1f8dfd9ceddd4d4d7dfd4ddd696d7cadf">[email&#160;protected]</a></span>
+              <span>Secretary · <a href="mailto:gavelloglen@gmail.com">gavelloglen@gmail.com</a></span>
             </div>
           </div>
-        </div>
+        <div class="board-member"><div class="board-avatar">KZ</div><div class="board-info"><strong>Kristine Zehner</strong><span>Event Coordinator · <a href="mailto:gavelloglen@gmail.com">gavelloglen@gmail.com</a></span></div></div><div class="board-member"><div class="board-avatar">NH</div><div class="board-info"><strong>Nienke Heij</strong><span>Outreach Coordinator · <a href="mailto:gavelloglen@gmail.com">gavelloglen@gmail.com</a></span></div></div><div class="board-member"><div class="board-avatar">JH</div><div class="board-info"><strong>Jonika Hoomes</strong><span>Outreach Coordinator · <a href="mailto:gavelloglen@gmail.com">gavelloglen@gmail.com</a></span></div></div></div>
       </div>
       <div>
         <div class="contact-form">
           <div class="form-group">
             <label>Your Name</label>
-            <input type="text" placeholder="Full name">
+            <input type="text" placeholder="Full name" id="cf-name">
           </div>
           <div class="form-group">
             <label>Email Address</label>
-            <input type="email" placeholder="your@email.com">
+            <input type="email" placeholder="your@email.com" id="cf-email">
           </div>
           <div class="form-group">
             <label>Subject</label>
-            <input type="text" placeholder="What's on your mind?">
+            <input type="text" placeholder="What's on your mind?" id="cf-subject">
           </div>
           <div class="form-group">
             <label>Message</label>
-            <textarea placeholder="Your message..."></textarea>
+            <textarea placeholder="Your message..." id="cf-message"></textarea>
           </div>
-          <button class="btn-submit">Send Message</button>
+          <button class="btn-submit" type="button" onclick="sendGgnaMail()">Send Message</button>
         </div>
       </div>
     </div>
@@ -1166,6 +1166,16 @@
       }
     });
   }
+
+function sendGgnaMail(){
+  var name=(document.getElementById('cf-name')||{}).value||'';
+  var email=(document.getElementById('cf-email')||{}).value||'';
+  var subject=(document.getElementById('cf-subject')||{}).value||'';
+  var message=(document.getElementById('cf-message')||{}).value||'';
+  var subj=subject?subject:'Message from '+(name||'GGNA website');
+  var body='Name: '+name+'\nEmail: '+email+'\n\n'+message;
+  window.location.href='mailto:gavelloglen@gmail.com?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+}
 </script>
 
 
