@@ -847,6 +847,29 @@
     .photo-square:nth-child(4) { bottom: 14%; right: 3%; }
   }
 
+
+  /* ===== Neighbor Listing Form + Sheet backend (added) ===== */
+  .market-add-wrap { text-align: center; margin: 0 0 2.5rem; }
+  .market-add-btn {
+    display: inline-block;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--navy);
+    background: var(--gold);
+    border: none;
+    padding: 0.85rem 2.4rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.25s;
+  }
+  .market-add-btn:hover { background: var(--gold-light); transform: translateY(-2px); color: var(--navy); }
+  .market-add-note { font-size: 0.75rem; color: var(--mist); margin-top: 0.9rem; letter-spacing: 0.04em; }
+  .market-status { text-align: center; grid-column: 1 / -1; color: var(--mist); font-size: 0.85rem; padding: 1rem 0; }
+  .market-card .listing-expiry { font-size: 0.65rem; color: var(--mist); letter-spacing: 0.05em; margin-top: 0.6rem; }
+  .market-card.user-listing .market-img { font-size: 2.6rem; }
 </style>
 </head>
 <body>
@@ -1006,7 +1029,11 @@
       <button class="market-tab" onclick="filterMarket('sale', this)">For Sale</button>
       <button class="market-tab" onclick="filterMarket('free', this)">Free</button>
     </div>
-    <div class="market-grid" id="market-grid">
+    <div class="market-add-wrap">
+        <a class="market-add-btn" href="https://forms.gle/rQizbnThU3LmVCWf8" target="_blank" rel="noopener">+ Add a Listing</a>
+        <p class="market-add-note">Have something to sell or give away? Add it via our form &mdash; listings appear here for 14 days.</p>
+      </div>
+      <div class="market-grid" id="market-grid">
       <div class="market-card" data-type="sale">
         <div class="market-img sale">📦 Photo Coming Soon</div>
         <div class="market-body">
@@ -1176,6 +1203,104 @@ function sendGgnaMail(){
   var body='Name: '+name+'\nEmail: '+email+'\n\n'+message;
   window.location.href='mailto:gavelloglen@gmail.com?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
 }
+
+/* ===== Neighbor Marketplace Listings via Google Sheet (added) ===== */
+(function(){
+  var CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT_B42XXS1QCCikfgJAly9OKJEAnM6Vs3fXhxY3V4RSNow7jJkJhLQcCNyQJa7XP9eQKqIj7-9tb0zd/pub?gid=914403455&single=true&output=csv";
+  var MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
+  function parseCSV(text){
+    var rows = [], row = [], field = '', i = 0, inQuotes = false;
+    while(i < text.length){
+      var c = text[i];
+      if(inQuotes){
+        if(c === '"'){ if(text[i+1] === '"'){ field += '"'; i += 2; continue; } inQuotes = false; i++; continue; }
+        field += c; i++; continue;
+      }
+      if(c === '"'){ inQuotes = true; i++; continue; }
+      if(c === ','){ row.push(field); field = ''; i++; continue; }
+      if(c === '\r'){ i++; continue; }
+      if(c === '\n'){ row.push(field); rows.push(row); row = []; field = ''; i++; continue; }
+      field += c; i++;
+    }
+    if(field.length || row.length){ row.push(field); rows.push(row); }
+    return rows;
+  }
+  function escapeHtml(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+  function headerKey(h){
+    var s = String(h||'').toLowerCase().replace(/[^a-z]/g,'');
+    if(s.indexOf('timestamp') !== -1) return 'timestamp';
+    if(s.indexOf('type') !== -1) return 'type';
+    if(s.indexOf('title') !== -1) return 'title';
+    if(s.indexOf('price') !== -1) return 'price';
+    if(s.indexOf('icon') !== -1 || s.indexOf('emoji') !== -1) return 'emoji';
+    if(s.indexOf('description') !== -1) return 'desc';
+    if(s.indexOf('contact') !== -1) return 'contact';
+    return null;
+  }
+  function daysLeft(created){ var ms = MAX_AGE_MS - (Date.now() - created); var d = Math.ceil(ms / (24*60*60*1000)); return d < 1 ? 1 : d; }
+  function setStatus(grid, msg){ var s = grid.querySelector('.market-status'); if(!s){ s = document.createElement('div'); s.className='market-status'; grid.appendChild(s);} s.textContent = msg; }
+  function clearStatus(grid){ var s = grid.querySelector('.market-status'); if(s) s.remove(); }
+  function buildCard(item){
+    var type = item.type && item.type.toLowerCase().indexOf('free') !== -1 ? 'free' : 'sale';
+    var tagLabel = type === 'free' ? 'Free' : 'For Sale';
+    var priceText = type === 'free' ? 'Free' : (item.price ? escapeHtml(item.price) : 'Contact for price');
+    var icon = item.emoji ? escapeHtml(item.emoji) : (type === 'free' ? '🎁' : '🏷️');
+    var card = document.createElement('div');
+    card.className = 'market-card user-listing';
+    card.setAttribute('data-type', type);
+    var contactHtml = item.contact ? '<p>' + escapeHtml(item.contact) + '</p>' : '';
+    card.innerHTML =
+      '<div class="market-img ' + type + '">' + icon + '</div>' +
+      '<div class="market-body">' +
+        '<span class="market-tag ' + type + '">' + tagLabel + '</span>' +
+        '<h4>' + escapeHtml(item.title || 'Untitled') + '</h4>' +
+        '<div class="price">' + priceText + '</div>' +
+        '<p>' + escapeHtml(item.desc || '') + '</p>' +
+        contactHtml +
+        '<div class="listing-expiry">Posted by a neighbor · ' + daysLeft(item.created) + ' day(s) left</div>' +
+      '</div>';
+    return card;
+  }
+  function renderRows(rows){
+    var grid = document.getElementById('market-grid');
+    if(!grid) return;
+    grid.querySelectorAll('.market-card.user-listing').forEach(function(n){ n.remove(); });
+    clearStatus(grid);
+    if(!rows || rows.length < 2){ return; }
+    var headers = rows[0].map(headerKey);
+    var items = [];
+    for(var r = 1; r < rows.length; r++){
+      var cols = rows[r];
+      if(!cols || cols.every(function(c){ return !String(c).trim(); })) continue;
+      var obj = {};
+      for(var c = 0; c < headers.length; c++){ if(headers[c]) obj[headers[c]] = (cols[c]||'').trim(); }
+      var created = obj.timestamp ? Date.parse(obj.timestamp) : NaN;
+      if(isNaN(created)) created = Date.now();
+      obj.created = created;
+      if((Date.now() - created) >= MAX_AGE_MS) continue;
+      if(!obj.title && !obj.desc) continue;
+      items.push(obj);
+    }
+    items.sort(function(a,b){ return b.created - a.created; });
+    items.forEach(function(it){ grid.appendChild(buildCard(it)); });
+    var active = document.querySelector('.market-tab.active');
+    if(active && typeof filterMarket === 'function'){ active.click(); }
+  }
+  function loadListings(){
+    var grid = document.getElementById('market-grid');
+    if(!grid) return;
+    setStatus(grid, 'Loading neighbor listings…');
+    var url = CSV_URL + (CSV_URL.indexOf('?') === -1 ? '?' : '&') + 't=' + Date.now();
+    fetch(url, { cache: 'no-store' })
+      .then(function(res){ if(!res.ok) throw new Error('HTTP ' + res.status); return res.text(); })
+      .then(function(text){ renderRows(parseCSV(text)); })
+      .catch(function(err){ clearStatus(grid); });
+  }
+  window.reloadMarketListings = loadListings;
+  function init(){ loadListings(); }
+  if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', init); } else { init(); }
+  setInterval(loadListings, 30 * 60 * 1000);
+})();
 </script>
 
 
