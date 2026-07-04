@@ -868,6 +868,7 @@
   .market-add-btn:hover { background: var(--gold-light); transform: translateY(-2px); color: var(--navy); }
   .market-add-note { font-size: 0.75rem; color: var(--mist); margin-top: 0.9rem; letter-spacing: 0.04em; }
   .market-status { text-align: center; grid-column: 1 / -1; color: var(--mist); font-size: 0.85rem; padding: 1rem 0; }
+  .market-empty { text-align: center; grid-column: 1 / -1; color: var(--mist); font-size: 0.95rem; letter-spacing: 0.04em; padding: 2.5rem 0; }
   .market-card .listing-expiry { font-size: 0.65rem; color: var(--mist); letter-spacing: 0.05em; margin-top: 0.6rem; }
   .market-card.user-listing .market-img { font-size: 2.6rem; }
 </style>
@@ -1034,61 +1035,8 @@
         <p class="market-add-note">Have something to sell or give away? Add it via our form &mdash; listings appear here for 14 days.</p>
       </div>
       <div class="market-grid" id="market-grid">
-      <div class="market-card" data-type="sale">
-        <div class="market-img sale">📦 Photo Coming Soon</div>
-        <div class="market-body">
-          <span class="market-tag sale">For Sale</span>
-          <h4>Patio Furniture Set</h4>
-          <div class="price">$180</div>
-          <p>6-piece teak patio set, lightly used. Excellent condition. Contact Sarah at #14 Glen Court.</p>
-        </div>
+        <div class="market-empty" id="market-empty">No listings yet — be the first to add one!</div>
       </div>
-      <div class="market-card" data-type="free">
-        <div class="market-img free">🌿 Photo Coming Soon</div>
-        <div class="market-body">
-          <span class="market-tag free">Free</span>
-          <h4>Garden Tomato Seedlings</h4>
-          <div class="price">Free</div>
-          <p>Heirloom tomato starts — too many for our garden! Pick up from 22 Gavello Drive this weekend.</p>
-        </div>
-      </div>
-      <div class="market-card" data-type="sale">
-        <div class="market-img sale">🚲 Photo Coming Soon</div>
-        <div class="market-body">
-          <span class="market-tag sale">For Sale</span>
-          <h4>Trek Mountain Bike</h4>
-          <div class="price">$350</div>
-          <p>2022 Trek Marlin 5, 21-speed, barely ridden. Original price $600. Great condition.</p>
-        </div>
-      </div>
-      <div class="market-card" data-type="free">
-        <div class="market-img free">📚 Photo Coming Soon</div>
-        <div class="market-body">
-          <span class="market-tag free">Free</span>
-          <h4>Box of Books</h4>
-          <div class="price">Free</div>
-          <p>Assorted fiction, cookbooks, and children's books. Porch pickup at 8 Gavello Glen Way.</p>
-        </div>
-      </div>
-      <div class="market-card" data-type="sale">
-        <div class="market-img sale">🪑 Photo Coming Soon</div>
-        <div class="market-body">
-          <span class="market-tag sale">For Sale</span>
-          <h4>Mid-Century Armchair</h4>
-          <div class="price">$125</div>
-          <p>Walnut frame, reupholstered in grey linen. Clean and stylish. Must pick up.</p>
-        </div>
-      </div>
-      <div class="market-card" data-type="free">
-        <div class="market-img free">🌱 Photo Coming Soon</div>
-        <div class="market-body">
-          <span class="market-tag free">Free</span>
-          <h4>Moving Boxes</h4>
-          <div class="price">Free</div>
-          <p>~25 sturdy boxes from our recent move, various sizes. Come grab them before recycling day!</p>
-        </div>
-      </div>
-    </div>
   </div>
 </section>
 
@@ -1266,7 +1214,7 @@ function sendGgnaMail(){
     if(!grid) return;
     grid.querySelectorAll('.market-card.user-listing').forEach(function(n){ n.remove(); });
     clearStatus(grid);
-    if(!rows || rows.length < 2){ return; }
+    if(!rows || rows.length < 2){ var e0=document.getElementById('market-empty'); if(e0) e0.style.display=''; return; }
     var headers = rows[0].map(headerKey);
     var items = [];
     for(var r = 1; r < rows.length; r++){
@@ -1283,6 +1231,7 @@ function sendGgnaMail(){
     }
     items.sort(function(a,b){ return b.created - a.created; });
     items.forEach(function(it){ grid.appendChild(buildCard(it)); });
+    var emptyEl = document.getElementById('market-empty'); if(emptyEl){ emptyEl.style.display = items.length ? 'none' : ''; }
     var active = document.querySelector('.market-tab.active');
     if(active && typeof filterMarket === 'function'){ active.click(); }
   }
@@ -1290,11 +1239,12 @@ function sendGgnaMail(){
     var grid = document.getElementById('market-grid');
     if(!grid) return;
     setStatus(grid, 'Loading neighbor listings…');
+    var el0 = document.getElementById('market-empty'); if(el0) el0.style.display='none';
     var url = CSV_URL + (CSV_URL.indexOf('?') === -1 ? '?' : '&') + 't=' + Date.now();
     fetch(url, { cache: 'no-store' })
       .then(function(res){ if(!res.ok) throw new Error('HTTP ' + res.status); return res.text(); })
       .then(function(text){ renderRows(parseCSV(text)); })
-      .catch(function(err){ clearStatus(grid); });
+      .catch(function(err){ clearStatus(grid); var e1=document.getElementById('market-empty'); if(e1) e1.style.display=''; });
   }
   window.reloadMarketListings = loadListings;
   function init(){ loadListings(); }
