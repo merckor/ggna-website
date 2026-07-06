@@ -462,66 +462,30 @@
     white-space: nowrap;
   }
 
-  /* GALLERY */
-  #gallery {
+  /* PHOTOS */
+  #photos {
     background: var(--white);
     padding-bottom: 5rem;
   }
 
-  .gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: 220px 220px;
-    gap: 10px;
-  }
-
-  .gallery-item {
-    overflow: hidden;
-    position: relative;
+  .photos-intro { text-align: center; color: var(--mist); font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.15rem; max-width: 620px; margin: 0 auto 2rem; line-height: 1.6; }
+  .photos-cta { text-align: center; padding: 0.5rem 0 1rem; }
+  .photos-album-link {
+    display: inline-block;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--navy);
+    background: var(--gold);
+    border: none;
+    padding: 0.85rem 2.4rem;
     cursor: pointer;
+    text-decoration: none;
+    transition: all 0.25s;
   }
-
-  .gallery-item:first-child {
-    grid-column: span 2;
-    grid-row: span 2;
-  }
-
-  .gallery-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    font-size: 1rem;
-    color: rgba(255,255,255,0.5);
-    transition: transform 0.5s ease;
-    background-size: cover;
-    background-position: center;
-  }
-
-  .gallery-item:hover .gallery-placeholder {
-    transform: scale(1.05);
-  }
-
-  .gallery-item::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(26,37,53,0.2);
-    transition: background 0.3s;
-  }
-
-  .gallery-item:hover::after {
-    background: rgba(26,37,53,0.05);
-  }
-
-  .g1 { background: linear-gradient(135deg, #2e3f56 0%, #1a2535 100%); }
-  .g2 { background: linear-gradient(135deg, #4a6080 0%, #2e3f56 100%); }
-  .g3 { background: linear-gradient(135deg, #3a5068 0%, #2a3d54 100%); }
-  .g4 { background: linear-gradient(135deg, #1e3248 0%, #152030 100%); }
-  .g5 { background: linear-gradient(135deg, #5a7090 0%, #3a5068 100%); }
+  .photos-album-link:hover { background: var(--gold-light); transform: translateY(-2px); color: var(--navy); }
 
   /* MARKETPLACE */
   #marketplace {
@@ -788,8 +752,6 @@
     section { padding: 5rem 1.5rem; }
     .about-grid, .contact-grid { grid-template-columns: 1fr; gap: 3rem; }
     .news-grid, .market-grid { grid-template-columns: 1fr; }
-    .gallery-grid { grid-template-columns: repeat(2, 1fr); grid-template-rows: auto; }
-    .gallery-item:first-child { grid-column: span 2; grid-row: span 1; }
     footer { flex-direction: column; gap: 1rem; text-align: center; }
   }
 
@@ -882,7 +844,7 @@
     <li><a href="#about">About</a></li>
     <li><a href="#news">News</a></li>
     <li><a href="#events">Events</a></li>
-    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#photos">Photos</a></li>
     <li><a href="#marketplace">Marketplace</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
@@ -993,28 +955,15 @@
   </div>
 </section>
 
-<!-- GALLERY -->
-<section id="gallery">
+<!-- PHOTOS -->
+<section id="photos">
   <div class="section-inner">
     <div class="section-label">Our Neighborhood</div>
-    <h2 class="section-title">Photo <em>Gallery</em></h2>
+    <h2 class="section-title">Neighborhood <em>Photos</em></h2>
     <div class="divider"></div>
-    <div class="gallery-grid">
-      <div class="gallery-item">
-        <div class="gallery-placeholder g1">Community Park</div>
-      </div>
-      <div class="gallery-item">
-        <div class="gallery-placeholder g2">Block Party 2025</div>
-      </div>
-      <div class="gallery-item">
-        <div class="gallery-placeholder g3">Glen Court</div>
-      </div>
-      <div class="gallery-item">
-        <div class="gallery-placeholder g4">Spring Cleanup</div>
-      </div>
-      <div class="gallery-item">
-        <div class="gallery-placeholder g5">Holiday Lights</div>
-      </div>
+    <p class="photos-intro">Browse and share photos from around Gavello Glen in our shared Google Photos album.</p>
+    <div class="photos-cta">
+      <a class="photos-album-link" href="https://photos.app.goo.gl/ZK3cYq5AYUVBJVSe6" target="_blank" rel="noopener noreferrer">Open Google Photos Album</a>
     </div>
   </div>
 </section>
