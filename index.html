@@ -1119,9 +1119,9 @@ function sendGgnaMail(){
   function headerKey(h){
     var s = String(h||'').toLowerCase().replace(/[^a-z]/g,'');
     if(s.indexOf('timestamp') !== -1) return 'timestamp';
+    if(s.indexOf('price') !== -1) return 'price';
     if(s.indexOf('type') !== -1) return 'type';
     if(s.indexOf('title') !== -1) return 'title';
-    if(s.indexOf('price') !== -1) return 'price';
     if(s.indexOf('icon') !== -1 || s.indexOf('emoji') !== -1) return 'emoji';
     if(s.indexOf('description') !== -1) return 'desc';
     if(s.indexOf('contact') !== -1) return 'contact';
@@ -1131,7 +1131,7 @@ function sendGgnaMail(){
   function setStatus(grid, msg){ var s = grid.querySelector('.market-status'); if(!s){ s = document.createElement('div'); s.className='market-status'; grid.appendChild(s);} s.textContent = msg; }
   function clearStatus(grid){ var s = grid.querySelector('.market-status'); if(s) s.remove(); }
   function buildCard(item){
-    var type = item.type && item.type.toLowerCase().indexOf('free') !== -1 ? 'free' : 'sale';
+    var type = (((item.type||'') + ' ' + (item.price||'')).toLowerCase().indexOf('free') !== -1) ? 'free' : 'sale';
     var tagLabel = type === 'free' ? 'Free' : 'For Sale';
     var priceText = type === 'free' ? 'Free' : (item.price ? escapeHtml(item.price) : 'Contact for price');
     var icon = item.emoji ? escapeHtml(item.emoji) : (type === 'free' ? '🎁' : '🏷️');
