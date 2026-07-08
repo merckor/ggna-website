@@ -1,6 +1,8 @@
 // Cloudflare Worker for GGNA website.
-// Serves static assets, plus an /api/events endpoint that returns the
-// next 3 upcoming (future-only) events from the public Google Calendar.
+// - Serves static assets (index.html, images, etc.).
+// - /api/events: next N future events from the public Google Calendar.
+// - Injects a script into HTML so the News & Announcements tiles show
+//   the next 3 upcoming (future-only) calendar events.
 
 const CAL_ID = "gavelloglen@gmail.com";
 const ICS_URL =
@@ -68,9 +70,18 @@ async function getUpcoming(limit) {
     .slice(0, limit);
 }
 
+const INJECT = "<script>\n(function(){\n  function fmtDate(iso){\n    try {\n      var d = new Date(iso);\n      return d.toLocaleDateString(\"en-US\", { year:\"numeric\", month:\"long\", day:\"numeric\" }).toUpperCase();\n    } catch(e){ return \"\"; }\n  }\n  function esc(s){\n    return String(s==null?\"\":s).replace(/[&<>\"]/g, function(c){\n      return {\"&\":\"&amp;\",\"<\":\"&lt;\",\">\":\"&gt;\",\"\\\"\":\"&quot;\"}[c];\n    });\n  }\n  function trim(s, n){\n    s = String(s==null?\"\":s);\n    return s.length > n ? s.slice(0, n-1).trim() + \"\\u2026\" : s;\n  }\n  function render(events){\n    var grid = document.querySelector(\"#news .news-grid\");\n    if (!grid) return;\n    if (!events || !events.length){\n      grid.innerHTML = \"<p style=\\\"opacity:.7\\\">No upcoming events at this time.</p>\";\n      return;\n    }\n    grid.innerHTML = events.map(function(ev){\n      var desc = ev.description || ev.location || \"\";\n      return \"<div class=\\\"news-card\\\">\" +\n        \"<div class=\\\"news-date\\\">\" + esc(fmtDate(ev.start)) + \"</div>\" +\n        \"<h3>\" + esc(ev.title) + \"</h3>\" +\n        \"<p>\" + esc(trim(desc, 160)) + \"</p>\" +\n        \"<a href=\\\"#events\\\" class=\\\"news-read-more\\\">View Calendar \\u2192</a>\" +\n        \"</div>\";\n    }).join(\"\");\n  }\n  function load(){\n    fetch(\"/api/events?limit=3\", { headers: { \"accept\": \"application/json\" } })\n      .then(function(r){ return r.json(); })\n      .then(function(data){ render(data.events || []); })\n      .catch(function(){});\n  }\n  if (document.readyState === \"loading\") document.addEventListener(\"DOMContentLoaded\", load);\n  else load();\n})();\n<\\/script>";
+
+class Injector {
+  element(el) {
+    el.append(INJECT, { html: true });
+  }
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+
     if (url.pathname === "/api/events") {
       try {
         const limit = Math.min(parseInt(url.searchParams.get("limit") || "3", 10) || 3, 20);
@@ -85,14 +96,16 @@ export default {
       } catch (err) {
         return new Response(JSON.stringify({ events: [], error: String(err) }), {
           status: 502,
-          headers: {
-            "content-type": "application/json; charset=utf-8",
-            "access-control-allow-origin": "*",
-          },
+          headers: { "content-type": "application/json; charset=utf-8" },
         });
       }
     }
-    return env.ASSETS.fetch(request);
+
+    const assetResponse = await env.ASSETS.fetch(request);
+    const ct = assetResponse.headers.get("content-type") || "";
+    if (ct.includes("text/html")) {
+      return new HTMLRewriter().on("body", new Injector()).transform(assetResponse);
+    }
+    return assetResponse;
   },
 };
-
