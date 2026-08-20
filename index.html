@@ -863,6 +863,110 @@
   @media (max-width: 768px) {
     .membership-grid { grid-template-columns: 1fr; gap: 3rem; }
   }
+
+  /* DONATION INFO LINK */
+  .donation-info-link {
+    color: var(--steel);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .donation-info-link:hover { color: var(--gold); }
+
+  /* DONATION MODAL */
+  .donation-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(26, 37, 53, 0.72);
+    backdrop-filter: blur(4px);
+    padding: 4rem 1.5rem;
+    overflow-y: auto;
+  }
+  .donation-modal-overlay.active { display: flex; align-items: flex-start; justify-content: center; }
+  .donation-modal {
+    position: relative;
+    background: var(--white);
+    max-width: 620px;
+    width: 100%;
+    padding: 3rem 3rem 2.5rem;
+    border-top: 2px solid var(--gold);
+    box-shadow: 0 25px 60px rgba(26, 37, 53, 0.35);
+    animation: donationModalIn 0.25s ease;
+  }
+  @keyframes donationModalIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .donation-modal-close {
+    position: absolute;
+    top: 1.2rem;
+    right: 1.4rem;
+    background: none;
+    border: none;
+    font-family: 'Jost', sans-serif;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: var(--mist);
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .donation-modal-close:hover { color: var(--navy); }
+  .donation-modal .section-label { margin-bottom: 0.8rem; }
+  .donation-modal-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.6rem, 3vw, 2.1rem);
+    font-weight: 400;
+    color: var(--navy);
+    line-height: 1.2;
+    margin-bottom: 1.4rem;
+  }
+  .donation-modal-title em { font-style: italic; color: var(--steel); }
+  .donation-modal-body p { margin-bottom: 1.2rem; line-height: 1.8; font-size: 0.95rem; color: var(--slate); }
+  .donation-modal-subhead {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.25rem;
+    color: var(--steel);
+    margin-bottom: 0.9rem;
+    margin-top: 1.8rem;
+  }
+  .donation-modal-body ul {
+    list-style: none;
+    margin-bottom: 1.2rem;
+  }
+  .donation-modal-body ul li {
+    position: relative;
+    padding-left: 1.3rem;
+    margin-bottom: 0.9rem;
+    line-height: 1.7;
+    font-size: 0.95rem;
+    color: var(--slate);
+  }
+  .donation-modal-body ul li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.65rem;
+    width: 6px;
+    height: 1px;
+    background: var(--gold);
+  }
+  .donation-modal-body strong { color: var(--navy); font-weight: 500; }
+  .donation-modal-body .donation-modal-thanks {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--steel);
+    margin-top: 1.6rem;
+    margin-bottom: 0;
+  }
+  @media (max-width: 600px) {
+    .donation-modal { padding: 2.4rem 1.6rem 2rem; }
+  }
 </style>
 </head>
 <body>
@@ -1031,7 +1135,7 @@
       <div class="membership-text">
         <p>Membership in the Gavello Glen Neighborhood Association connects you with your neighbors and supports the events, safety initiatives, and improvements that keep our community thriving.</p>
         <p>The Gavello Glen Neighborhood Association (GGNA) thrives thanks to the participation and support of neighbors like you! To continue fostering connections, organizing our favorite social events, and advocating for our neighborhood’s interests with the City of Sunnyvale, we kindly ask each household to contribute an annual voluntary donation of $20.00.</p>
-        <a href="https://docs.google.com/document/d/1JjpG9lffwIyAYJOMX2rDCEsl1iiULQgKHobAW_B7Yjg/edit?usp=sharing" style="color: #0066cc; text-decoration: underline; font-weight: bold;">More Info on Donations</a>
+        <a href="#" class="donation-info-link" onclick="openDonationModal(event)">More Info on Donations</a>
         <p></p><a href="https://paypal.me/gavelloglenpaypal">Click to make a donation via Paypal</a></p>
         <p>Fill out our short membership form below. Your information is collected securely and helps us keep you informed about everything happening in the neighborhood. Once submitted, we will send you an invitation to join our neighborhood Google Group (gavelloglen@googlegroups.com) and our community WhatsApp neighborhood and announcement chat.</p>
         <a class="market-add-btn" href="https://forms.gle/rD4XLRU61WgPCQYd7" target="_blank" rel="noopener">Fill Out Membership Form</a>
@@ -1250,6 +1354,50 @@ function sendGgnaMail(){
 })();
 </script>
 
+<!-- DONATION INFO MODAL -->
+<div class="donation-modal-overlay" id="donation-modal-overlay" onclick="closeDonationModal(event)">
+  <div class="donation-modal" role="dialog" aria-modal="true" aria-labelledby="donation-modal-title">
+    <button class="donation-modal-close" aria-label="Close" onclick="closeDonationModal()">&times;</button>
+    <div class="section-label">Membership Dues</div>
+    <h3 class="donation-modal-title" id="donation-modal-title">Support the Gavello Glen <em>Neighborhood Association</em></h3>
+    <div class="donation-modal-body">
+      <p>The Gavello Glen Neighborhood Association (GGNA) thrives thanks to the participation and support of neighbors like you! To continue fostering connections, organizing our favorite social events, and advocating for our neighborhood&rsquo;s interests with the City of Sunnyvale, we kindly ask each household to contribute their annual voluntary donations.</p>
+      <div class="donation-modal-subhead">Membership Dues Details</div>
+      <ul>
+        <li><strong>Annual Contribution:</strong> $20.00 per household.</li>
+        <li><strong>Purpose:</strong> These funds help provide the basic operating budget needed to host events like Neighborhood Night Out and our annual holiday party, as well as manage our neighborhood communications.</li>
+      </ul>
+      <div class="donation-modal-subhead">Paid Member Rights &amp; Benefits</div>
+      <p>Staying current with your donations ensures our association remains vibrant and allows you to participate fully in the following direction:</p>
+      <ul>
+        <li><strong>Voting Rights:</strong> Each donation-paying household is entitled to a maximum of two votes on Association matters.</li>
+        <li><strong>Leadership:</strong> Members in good standing are eligible to volunteer and sit on the GGNA Board of Directors.</li>
+        <li><strong>Community Impact:</strong> Your support allows us to coordinate emergency preparedness, maintain our beautiful environment, and welcome new residents to the Glen.</li>
+      </ul>
+      <p>Donations are traditionally payable at our March General Meeting, but you can fulfill them anytime to ensure your membership remains active.</p>
+      <p class="donation-modal-thanks">Thank you for being a part of what makes Gavello Glen a wonderful place to live!</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openDonationModal(e){
+    if(e) e.preventDefault();
+    document.getElementById('donation-modal-overlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDonationModal(e){
+    if(e && e.target !== document.getElementById('donation-modal-overlay') && !e.target.classList.contains('donation-modal-close')) return;
+    document.getElementById('donation-modal-overlay').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') {
+      document.getElementById('donation-modal-overlay').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  });
+</script>
 
 </body>
 </html>
